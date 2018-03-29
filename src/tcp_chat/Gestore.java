@@ -22,6 +22,7 @@ public class Gestore {
 
     Gestore(Socket c) {
         try {
+            linea = true;
             connection = c;
             is = connection.getInputStream();
             os = connection.getOutputStream();
@@ -35,44 +36,46 @@ public class Gestore {
 
     void menu() {
         boolean f = true;
+
         while (f) {
-            boolean fine = true;
-            while (fine) {
-                try {
-                    fine=true;
-                    System.out.println("Scrivi /text per inviare un messaggio o Scrivi /help per visualizzare il menu ");
-                    s1 = tastiera.readLine();
-                    if (s1.equals("/text")) {
-                        scrivi();
-                        fine = false;
-                    }
+            try {
+                System.out.println("Scrivi /text per inviare un messaggio o scrivi /help per visualizzare il menu ");
+                s1 = tastiera.readLine();
 
-                    if (s1.equals("/help")) {
-                        System.out.println("1)/aut \n2)/stato");
-                        fine = false;
-                    }
-
-                    if (s1.equals("/aut")) {
-                        setAutore();
-                        fine = false;
-                    }
-                    if (s1.equals("/stato")) {
-                        setLinea();
-                        fine = false;
-                    }
-
-                } catch (IOException er) {
-                    System.err.println("Errore inserimento tastiera");
+                if (s1.equals("/text")) {
+                    scrivi();
                 }
+
+                if (s1.equals("/help")) {
+                    System.out.println("1)/aut \n2)/stato \n3)/end");
+                    s1 = tastiera.readLine();
+                }
+
+                if (s1.equals("/aut")) {
+                    setAutore();
+                }
+
+                if (s1.equals("/stato")) {
+                    setLinea();
+                }
+                if (s1.equals("/end")) {
+                    System.out.println("Eseguendo la disconnessione...");
+                    f=false;
+                    
+                }
+            } catch (IOException er) {
+                System.err.println("Errore inserimento tastiera");
             }
-            f=false;
-            leggi();
+            if(bw!=null){
+                leggi();
+            }
         }
+        
     }
 
     void leggi() {
         try {
-            System.out.println("Sto leggendo " + br.readLine());
+            System.out.println(br.readLine());
         } catch (IOException err) {
             System.err.println("Errore di: " + err);
         }
@@ -81,8 +84,9 @@ public class Gestore {
     void scrivi() {
 
         try {
+            System.out.println("Scrivere il messaggio da inviare:");
             s1 = tastiera.readLine();
-            bw.write(s1+"\n");
+            bw.write(autore + ": " + s1 + "\n");
             bw.flush();
         } catch (IOException r) {
             System.err.println("Metodo scrivi = Errore di: " + r);
@@ -91,7 +95,9 @@ public class Gestore {
 
     void setAutore() {
         try {
+            System.out.println("Inserire nome utente: ");
             autore = tastiera.readLine();
+            System.out.println("Il tuo nome utente è: " + autore);
         } catch (IOException er) {
             System.err.println("Errore inserimento da tastiera");
         }
@@ -99,15 +105,20 @@ public class Gestore {
 
     void setLinea() {
         try {
+            System.out.println("Selezionare lo stato dell'utente: \n1)/offline \n2)/online");
             s1 = tastiera.readLine();
-            if ("Offline".equals(s1) || "offline".equals(s1)) {
+            if ("/offline".equals(s1)) {
                 linea = false;
             }
+            if ("/online".equals(s1)) {
+                linea = true;
+            }
+
         } catch (IOException er) {
             System.err.println("Errore inserimento da tastiera");
         }
     }
-    
+
     void smile() {
 
     }
