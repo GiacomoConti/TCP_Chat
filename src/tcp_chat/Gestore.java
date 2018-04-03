@@ -10,14 +10,15 @@ import java.util.logging.Logger;
  */
 public class Gestore {
 
-    String autore, s1, s2;
+    public static final String RESET = "\u001B[0m";
+    public static final String PURPLE = "\u001B[35m";
+    String autore, s1;
     InputStream is;
     OutputStream os;
     BufferedWriter bw;
     BufferedReader br;
     Boolean linea;
     Socket connection;
-    int scelta, n;
     BufferedReader tastiera = new BufferedReader(new InputStreamReader(System.in));
 
     Gestore(Socket c) {
@@ -29,48 +30,58 @@ public class Gestore {
             bw = new BufferedWriter(new OutputStreamWriter(os));
             br = new BufferedReader(new InputStreamReader(is));
             autore = "default";
+            System.out.println(PURPLE + "PURPLE = Console." + RESET + "\nBLACK = Client.\n");
         } catch (IOException ex) {
             Logger.getLogger(Gestore.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     void menu() {
-        boolean f = true;
-
+        boolean fine = true, f =true;
         while (f) {
-            try {
-                System.out.println("Scrivi /text per inviare un messaggio o scrivi /help per visualizzare il menu ");
-                s1 = tastiera.readLine();
+            fine = true;
+            while (fine) {
+                try {
+                    if (linea) {
+                        System.out.println(PURPLE + "Scrivi /text per inviare un messaggio o scrivi /help per visualizzare il menu. " + RESET);
+                        s1 = tastiera.readLine();
 
-                if (s1.equals("/text")) {
-                    scrivi();
-                }
+                        if (s1.equals("/text")) {
+                            scrivi();
+                            fine = false;
+                        }
 
-                if (s1.equals("/help")) {
-                    System.out.println("1)/aut \n2)/stato \n3)/end");
-                    s1 = tastiera.readLine();
-                }
+                        if (s1.equals("/help")) {
+                            System.out.println(PURPLE + "Set the username: /aut \nSet the line states: /stato \nSend a smile: /smile \nEcho a messagge: /echo \nEnd the chat: /end" + RESET);
+                            s1 = tastiera.readLine();
+                        }
 
-                if (s1.equals("/aut")) {
-                    setAutore();
-                }
+                        if (s1.equals("/aut")) {
+                            setAutore();
+                        }
 
-                if (s1.equals("/stato")) {
-                    setLinea();
+                        if (s1.equals("/stato")) {
+                            setLinea();
+                            fine = false;
+                        }
+                        if (s1.equals("/smile")) {
+                            smile();
+                            fine = false;
+                        }
+
+                        if (s1.equals("/end")) {
+                            f = false;
+                            end();                          
+                        }
+                    } else {
+                        setLinea();
+                    }
+                } catch (IOException er) {
+                    System.err.println("Errore inserimento tastiera");
                 }
-                if (s1.equals("/end")) {
-                    System.out.println("Eseguendo la disconnessione...");
-                    f=false;
-                    
-                }
-            } catch (IOException er) {
-                System.err.println("Errore inserimento tastiera");
             }
-            if(bw!=null){
-                leggi();
-            }
+            leggi();
         }
-        
     }
 
     void leggi() {
@@ -82,9 +93,8 @@ public class Gestore {
     }
 
     void scrivi() {
-
         try {
-            System.out.println("Scrivere il messaggio da inviare:");
+            System.out.println(PURPLE + "Scrivere il messaggio da inviare:" + RESET);
             s1 = tastiera.readLine();
             bw.write(autore + ": " + s1 + "\n");
             bw.flush();
@@ -95,9 +105,9 @@ public class Gestore {
 
     void setAutore() {
         try {
-            System.out.println("Inserire nome utente: ");
+            System.out.println(PURPLE + "Inserire nome utente: " + RESET);
             autore = tastiera.readLine();
-            System.out.println("Il tuo nome utente è: " + autore);
+            System.out.println(PURPLE + "Il tuo nome utente è: " + autore + RESET);
         } catch (IOException er) {
             System.err.println("Errore inserimento da tastiera");
         }
@@ -105,7 +115,7 @@ public class Gestore {
 
     void setLinea() {
         try {
-            System.out.println("Selezionare lo stato dell'utente: \n1)/offline \n2)/online");
+            System.out.println(PURPLE + "Selezionare lo stato dell'utente: /offline or /online" + RESET);
             s1 = tastiera.readLine();
             if ("/offline".equals(s1)) {
                 linea = false;
@@ -120,20 +130,33 @@ public class Gestore {
     }
 
     void smile() {
-
-    }
-
-    void echo() {
         try {
-            s1 = tastiera.readLine();
-            bw.write(s1);
+            bw.write(autore + ": " + "=)" + "\n");
             bw.flush();
         } catch (IOException r) {
-            System.err.println("Errore di: " + r);
+            System.err.println("Metodo smile = Errore di " + r);
         }
     }
 
-    void end() {
+    void echo() {
 
+    }
+
+    void end() {
+        try {
+            if (connection != null) {
+                connection.close();
+                System.out.println("Connessione chiusa!");
+            }
+            if (br != null) {
+                br.close();
+            }
+            if (bw != null) {
+                bw.close();
+            }
+        } catch (IOException e) {
+            System.err.println("Errore nella chiusura della connessione!");
+        }
+        System.out.println(PURPLE + "Disconnessione eseguita." + RESET);
     }
 }

@@ -32,7 +32,7 @@ public class Server {
             connection = sSocket.accept();
             System.out.println("Connessione stabilita!");
             System.out.println("Socket server: " + connection.getLocalSocketAddress());
-            System.out.println("Socket client: " + connection.getRemoteSocketAddress());
+            System.out.println("Socket client: " + connection.getRemoteSocketAddress()+"\n");
         } catch (IOException e) {
             System.err.println("Errore di I/O!");
         }

@@ -26,7 +26,6 @@ public class Client {
 
         try {
             connection = new Socket(serverAddress, port);
-            System.out.println("Connessione avvenuta!");
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
